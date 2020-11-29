@@ -1,0 +1,23 @@
+{ 
+  "homepage": "https://www.curseforge.com/minecraft/mc-mods/clay-conversion", 
+  "promos": { 
+    "1.7.2-recommended": "1.0", 
+    "1.7.10-recommended": "1.0", 
+    "1.8-recommended": "1.2", 
+    "1.8.9-recommended": "1.2", 
+    "1.9-recommended": "1.2", 
+    "1.9.4-recommended": "1.2", 
+    "1.10-recommended": "1.2", 
+    "1.10.2-recommended": "1.2", 
+    "1.11-recommended": "1.2", 
+    "1.11.2-recommended": "1.2", 
+    "1.12-recommended": "1.4", 
+    "1.12.2-recommended": "1.4", 
+    "1.14-recommended": "1.4", 
+    "1.14.4-recommended": "1.4", 
+    "1.15-recommended": "1.4", 
+    "1.15.2-recommended": "1.4", 
+    "1.16-recommended": "1.4", 
+    "1.16.2-recommended": "1.4" 
+  }
+}
