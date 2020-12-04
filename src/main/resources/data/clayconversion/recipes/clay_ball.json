@@ -1,0 +1,20 @@
+{
+  "conditions":[
+	{
+		"type": "clayconversion:clay_enabled"
+	}
+  ],
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "#"
+  ],
+  "key": {
+    "#": {
+      "item": "minecraft:clay"
+    }
+  },
+  "result": {
+    "item": "minecraft:clay_ball",
+    "count": 4
+  }
+}
