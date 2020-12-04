@@ -1,0 +1,12 @@
+modLoader="javafml"
+loaderVersion="[25,)"
+logoFile="clayball.png"
+	
+[[mods]]
+	modId="clayconversion"
+	version="1.4.1"
+	displayName="Clay Conversion"
+	displayURL="https://minecraft.curseforge.com/projects/clay-conversion"
+	updateJSONURL="https://raw.githubusercontent.com/KadenS2005/Clay-Conversion/master/update.json"
+	authors="Kaden Sharpin"
+	description='Convert your clay blocks into clay balls easily with this mod!'
