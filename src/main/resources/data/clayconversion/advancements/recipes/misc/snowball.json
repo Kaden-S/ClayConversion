@@ -1,0 +1,25 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "clayconversion:snowball"
+    ]
+  },
+  "criteria": {
+    "has_snow": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "minecraft:snow_block"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_snow"
+    ]
+  ]
+}

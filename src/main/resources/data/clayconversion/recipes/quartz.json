@@ -1,0 +1,22 @@
+{
+  "conditions": [
+        {
+            "type": "clayconversion:enabled",
+            "recipe": "quartz",
+			"enabled": true
+        }
+    ],
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "#"
+  ],
+  "key": {
+    "#": {
+      "item": "minecraft:quartz_block"
+    }
+  },
+  "result": {
+    "item": "minecraft:quartz",
+    "count": 4
+  }
+}
