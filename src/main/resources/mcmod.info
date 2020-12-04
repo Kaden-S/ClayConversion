@@ -1,0 +1,16 @@
+[
+{
+  "modid": "clayconversion",
+  "name": "Clay Conversion",
+  "description": "Convert your clay blocks to clay balls easily!",
+  "version": "1.4",
+  "mcversion": "1.12.2",
+  "url": "https://minecraft.curseforge.com/projects/clay-conversion",
+  "updateUrl": "https://raw.githubusercontent.com/KadenS2005/Clay-Conversion/master/update.json",
+  "authorList": ["Kaden"],
+  "credits": "",
+  "logoFile": "clayball.jpg",
+  "screenshots": [],
+  "dependencies": []
+}
+]
