@@ -2,6 +2,8 @@ package kaden.clayconversion;
 
 import org.apache.logging.log4j.LogManager;
 
+import net.minecraft.fluid.Fluids;
+import net.minecraft.item.BucketItem;
 import net.minecraft.item.EnderPearlItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.Item.Properties;
@@ -68,7 +70,8 @@ public class ClayConversion {
 
 		@SubscribeEvent
 		public static void onItemsRegistry(final RegistryEvent.Register<Item> event) {
-			LogManager.getLogger().debug("Item Registry:\n"+Config.enderPearlFullStackEnabled.get()+"\n"+Config.snowballFullStackEnabled.get());
+			LogManager.getLogger().debug("Item Registry:\n" + Config.enderPearlFullStackEnabled.get() + "\n"
+					+ Config.snowballFullStackEnabled.get());
 			if (Config.enderPearlFullStackEnabled.get())
 				event.getRegistry()
 						.register(new EnderPearlItem((new Properties()).maxStackSize(64).group(ItemGroup.MISC))
@@ -76,6 +79,10 @@ public class ClayConversion {
 			if (Config.snowballFullStackEnabled.get())
 				event.getRegistry().register(new SnowballItem((new Properties()).maxStackSize(64).group(ItemGroup.MISC))
 						.setRegistryName("minecraft", "snowball"));
+			if (Config.emptyBucketsFullStackEnabled.get())
+				event.getRegistry().register(new BucketItem(() -> {
+					return Fluids.EMPTY;
+				}, (new Properties()).maxStackSize(64).group(ItemGroup.MISC)).setRegistryName("minecraft", "bucket"));
 		}
 	}
 }

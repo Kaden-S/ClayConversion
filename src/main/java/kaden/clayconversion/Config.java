@@ -4,6 +4,7 @@ import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.core.io.WritingMode;
 
 import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.common.ForgeConfigSpec.BooleanValue;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.loading.FMLPaths;
 
@@ -14,15 +15,15 @@ public class Config {
 
 	static ForgeConfigSpec cfg;
 
-	public static final ForgeConfigSpec.BooleanValue clayRecipeEnabled;
-	public static final ForgeConfigSpec.BooleanValue snowRecipeEnabled;
-	public static final ForgeConfigSpec.BooleanValue quartzRecipeEnabled;
-	public static final ForgeConfigSpec.BooleanValue glowstoneRecipeEnabled;
-	public static final ForgeConfigSpec.BooleanValue enderPearlFullStackEnabled;
-	public static final ForgeConfigSpec.BooleanValue snowballFullStackEnabled;
+	static final BooleanValue clayRecipeEnabled;
+	static final BooleanValue snowRecipeEnabled;
+	static final BooleanValue quartzRecipeEnabled;
+	static final BooleanValue glowstoneRecipeEnabled;
+	static final BooleanValue enderPearlFullStackEnabled;
+	static final BooleanValue snowballFullStackEnabled;
+	static final BooleanValue emptyBucketsFullStackEnabled;
 
 	static {
-
 		ForgeConfigSpec.Builder cfgBuilder = new ForgeConfigSpec.Builder();
 
 		cfgBuilder.comment("General settings").push(generalCategory);
@@ -31,6 +32,8 @@ public class Config {
 					.define("ender_pearl_stacks", false);
 			snowballFullStackEnabled = cfgBuilder.comment("\nEnable Full Stack of Snow Balls [Default: false]")
 					.define("snowball_stacks", false);
+			emptyBucketsFullStackEnabled = cfgBuilder.comment("\nEnable Full Stack of Empty Buckets [Default: false]")
+					.define("empty_bucket_stacks", false);
 
 			cfgBuilder.comment("Recipes settings").push(recipesCategory);
 			{
@@ -52,8 +55,9 @@ public class Config {
 
 	static void loadConfig(ModConfig.Type type) {
 		CommentedFileConfig file = CommentedFileConfig
-				.builder(FMLPaths.CONFIGDIR.get().resolve(ClayConversion.modid + "-"+type.toString().toLowerCase()+".toml").toFile()).sync()
-				.autosave().writingMode(WritingMode.REPLACE).build();
+				.builder(FMLPaths.CONFIGDIR.get()
+						.resolve(ClayConversion.modid + "-" + type.toString().toLowerCase() + ".toml").toFile())
+				.sync().autosave().writingMode(WritingMode.REPLACE).build();
 		file.load();
 		cfg.setConfig(file);
 	}
