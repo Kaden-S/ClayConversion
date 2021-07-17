@@ -50,7 +50,7 @@ public class EnabledCondition implements ICondition{
 
 		@Override
 		public EnabledCondition read(JsonObject json) {
-			return new EnabledCondition(JSONUtils.getString(json, "recipe"));
+			return new EnabledCondition(JSONUtils.getAsString(json, "recipe"));
 		}
 
 		@Override

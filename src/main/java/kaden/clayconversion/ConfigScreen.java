@@ -43,11 +43,11 @@ public class ConfigScreen extends Screen {
 	@Override
 	protected void init() {
 		if (doneButton == null) {
-			doneButton = new Button(2, height - 22, 50, 20, TextComponentUtils.toTextComponent(() -> "Done"), b -> {
-				Minecraft.getInstance().displayGuiScreen(new ModListScreen(new MainMenuScreen()));
+			doneButton = new Button(2, height - 22, 50, 20, TextComponentUtils.fromMessage(() -> "Done"), b -> {
+				Minecraft.getInstance().setScreen(new ModListScreen(new MainMenuScreen()));
 				Config.loadConfig(ModConfig.Type.COMMON);
 			});
-			allOnButton = new Button(width-104, height - 22, 50, 20, TextComponentUtils.toTextComponent(() -> "All on"), b -> {
+			allOnButton = new Button(width-104, height - 22, 50, 20, TextComponentUtils.fromMessage(() -> "All on"), b -> {
 				Config.emptyBucketsFullStackEnabled.set(true);
 				Config.enderPearlFullStackEnabled.set(true);
 				Config.snowballFullStackEnabled.set(true);
@@ -58,7 +58,7 @@ public class ConfigScreen extends Screen {
 				testValues();
 				init();
 			});
-			allOffButton = new Button(width-52, height - 22, 50, 20, TextComponentUtils.toTextComponent(() -> "All off"), b -> {
+			allOffButton = new Button(width-52, height - 22, 50, 20, TextComponentUtils.fromMessage(() -> "All off"), b -> {
 				Config.emptyBucketsFullStackEnabled.set(false);
 				Config.enderPearlFullStackEnabled.set(false);
 				Config.snowballFullStackEnabled.set(false);
@@ -69,7 +69,7 @@ public class ConfigScreen extends Screen {
 				testValues();
 				init();
 			});
-			resetButton = new Button(54, height - 22, 70, 20, TextComponentUtils.toTextComponent(() -> "Defaults"), b -> {
+			resetButton = new Button(54, height - 22, 70, 20, TextComponentUtils.fromMessage(() -> "Defaults"), b -> {
 				Config.emptyBucketsFullStackEnabled.set(false);;
 				Config.enderPearlFullStackEnabled.set(false);
 				Config.snowballFullStackEnabled.set(false);
@@ -83,43 +83,43 @@ public class ConfigScreen extends Screen {
 			testValues();
 		}
 		stackingList = new OptionsRowList(minecraft, width, height, 24, height - 25, 25);
-		stackingList.addOption(new BooleanOption("Snowballs stack to 64", a -> {
+		stackingList.addBig(new BooleanOption("Snowballs stack to 64", a -> {
 			return Config.snowballFullStackEnabled.get();
 		}, (a, b) -> {
 			Config.snowballFullStackEnabled.set(b);
 			testValues();
 		}));
-		stackingList.addOption(new BooleanOption("Ender Pearls stack to 64", a -> {
+		stackingList.addBig(new BooleanOption("Ender Pearls stack to 64", a -> {
 			return Config.enderPearlFullStackEnabled.get();
 		}, (a, b) -> {
 			Config.enderPearlFullStackEnabled.set(b);
 			testValues();
 		}));
-		stackingList.addOption(new BooleanOption("Empty Buckets stack to 64", a -> {
+		stackingList.addBig(new BooleanOption("Empty Buckets stack to 64", a -> {
 			return Config.emptyBucketsFullStackEnabled.get();
 		}, (a, b) -> {
 			Config.emptyBucketsFullStackEnabled.set(b);
 			testValues();
 		}));
-		stackingList.addOption(new BooleanOption("Clay block to clay ball recipe", a -> {
+		stackingList.addBig(new BooleanOption("Clay block to clay ball recipe", a -> {
 			return Config.clayRecipeEnabled.get();
 		}, (a, b) -> {
 			Config.clayRecipeEnabled.set(b);
 			testValues();
 		}));
-		stackingList.addOption(new BooleanOption("Glowstone block to glowstone dust recipe", a -> {
+		stackingList.addBig(new BooleanOption("Glowstone block to glowstone dust recipe", a -> {
 			return Config.glowstoneRecipeEnabled.get();
 		}, (a, b) -> {
 			Config.glowstoneRecipeEnabled.set(b);
 			testValues();
 		}));
-		stackingList.addOption(new BooleanOption("Snow block to snow ball recipe", a -> {
+		stackingList.addBig(new BooleanOption("Snow block to snow ball recipe", a -> {
 			return Config.snowRecipeEnabled.get();
 		}, (a, b) -> {
 			Config.snowRecipeEnabled.set(b);
 			testValues();
 		}));
-		stackingList.addOption(new BooleanOption("Quartz block to quartz recipe", a -> {
+		stackingList.addBig(new BooleanOption("Quartz block to quartz recipe", a -> {
 			return Config.quartzRecipeEnabled.get();
 		}, (a, b) -> {
 			Config.quartzRecipeEnabled.set(b);

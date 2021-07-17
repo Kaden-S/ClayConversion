@@ -54,7 +54,7 @@ public class ClayConversion {
 		public ClientSide() {
 			LogManager.getLogger().debug("Client side");
 			ModLoadingContext.get().registerExtensionPoint(ExtensionPoint.CONFIGGUIFACTORY, () -> (mc, screen) -> {
-				return new ConfigScreen(TextComponentUtils.toTextComponent(() -> "Clay Conversion Config"));
+				return new ConfigScreen(TextComponentUtils.fromMessage(() -> "Clay Conversion Config"));
 			});
 		}
 	}
@@ -73,16 +73,15 @@ public class ClayConversion {
 			LogManager.getLogger().debug("Item Registry:\n" + Config.enderPearlFullStackEnabled.get() + "\n"
 					+ Config.snowballFullStackEnabled.get());
 			if (Config.enderPearlFullStackEnabled.get())
-				event.getRegistry()
-						.register(new EnderPearlItem((new Properties()).maxStackSize(64).group(ItemGroup.MISC))
-								.setRegistryName("minecraft", "ender_pearl"));
+				event.getRegistry().register(new EnderPearlItem((new Properties()).stacksTo(64).tab(ItemGroup.TAB_MISC))
+						.setRegistryName("minecraft", "ender_pearl"));
 			if (Config.snowballFullStackEnabled.get())
-				event.getRegistry().register(new SnowballItem((new Properties()).maxStackSize(64).group(ItemGroup.MISC))
+				event.getRegistry().register(new SnowballItem((new Properties()).stacksTo(64).tab(ItemGroup.TAB_MISC))
 						.setRegistryName("minecraft", "snowball"));
 			if (Config.emptyBucketsFullStackEnabled.get())
 				event.getRegistry().register(new BucketItem(() -> {
 					return Fluids.EMPTY;
-				}, (new Properties()).maxStackSize(64).group(ItemGroup.MISC)).setRegistryName("minecraft", "bucket"));
+				}, (new Properties()).stacksTo(64).tab(ItemGroup.TAB_MISC)).setRegistryName("minecraft", "bucket"));
 		}
 	}
 }
