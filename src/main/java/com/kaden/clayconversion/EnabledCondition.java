@@ -1,11 +1,10 @@
-package kaden.clayconversion;
+package com.kaden.clayconversion;
 
 import javax.annotation.Nullable;
 
 import com.google.gson.JsonObject;
 
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.crafting.conditions.ICondition;
 import net.minecraftforge.common.crafting.conditions.IConditionSerializer;
 
@@ -50,7 +49,7 @@ public class EnabledCondition implements ICondition{
 
 		@Override
 		public EnabledCondition read(JsonObject json) {
-			return new EnabledCondition(JSONUtils.getAsString(json, "recipe"));
+			return new EnabledCondition(json.get("recipe").getAsString());
 		}
 
 		@Override

@@ -1,4 +1,4 @@
-package kaden.clayconversion;
+package com.kaden.clayconversion;
 
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.core.io.WritingMode;

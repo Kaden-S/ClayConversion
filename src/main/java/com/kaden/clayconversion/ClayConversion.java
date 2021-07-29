@@ -1,21 +1,21 @@
-package kaden.clayconversion;
+package com.kaden.clayconversion;
 
 import org.apache.logging.log4j.LogManager;
 
-import net.minecraft.fluid.Fluids;
-import net.minecraft.item.BucketItem;
-import net.minecraft.item.EnderPearlItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.Item.Properties;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.SnowballItem;
-import net.minecraft.util.text.TextComponentUtils;
+import net.minecraft.world.item.BucketItem;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.EnderpearlItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Item.Properties;
+import net.minecraft.world.item.SnowballItem;
+import net.minecraft.world.item.SolidBucketItem;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.ExtensionPoint;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
@@ -52,16 +52,17 @@ public class ClayConversion {
 
 	public class ClientSide {
 		public ClientSide() {
-			LogManager.getLogger().debug("Client side");
-			ModLoadingContext.get().registerExtensionPoint(ExtensionPoint.CONFIGGUIFACTORY, () -> (mc, screen) -> {
-				return new ConfigScreen(TextComponentUtils.fromMessage(() -> "Clay Conversion Config"));
-			});
+//			LogManager.getLogger().debug("Client side");
+//			TODO
+//			ModLoadingContext.get().registerExtensionPoint(GuiConfigFactory, () -> (mc, screen) -> {
+//				return new ConfigScreen(new TextComponent("Clay Conversion Config"));
+//			});
 		}
 	}
 
 	public class ServerSide {
 		public ServerSide() {
-			LogManager.getLogger().debug("Server side");
+//			LogManager.getLogger().debug("Server side");
 		}
 	}
 
@@ -70,18 +71,18 @@ public class ClayConversion {
 
 		@SubscribeEvent
 		public static void onItemsRegistry(final RegistryEvent.Register<Item> event) {
-			LogManager.getLogger().debug("Item Registry:\n" + Config.enderPearlFullStackEnabled.get() + "\n"
-					+ Config.snowballFullStackEnabled.get());
 			if (Config.enderPearlFullStackEnabled.get())
-				event.getRegistry().register(new EnderPearlItem((new Properties()).stacksTo(64).tab(ItemGroup.TAB_MISC))
-						.setRegistryName("minecraft", "ender_pearl"));
+				event.getRegistry()
+						.register(new EnderpearlItem(new Properties().stacksTo(64).tab(CreativeModeTab.TAB_MISC))
+								.setRegistryName("minecraft", "ender_pearl"));
 			if (Config.snowballFullStackEnabled.get())
-				event.getRegistry().register(new SnowballItem((new Properties()).stacksTo(64).tab(ItemGroup.TAB_MISC))
-						.setRegistryName("minecraft", "snowball"));
+				event.getRegistry()
+						.register(new SnowballItem(new Properties().stacksTo(64).tab(CreativeModeTab.TAB_MISC))
+								.setRegistryName("minecraft", "snowball"));
 			if (Config.emptyBucketsFullStackEnabled.get())
-				event.getRegistry().register(new BucketItem(() -> {
-					return Fluids.EMPTY;
-				}, (new Properties()).stacksTo(64).tab(ItemGroup.TAB_MISC)).setRegistryName("minecraft", "bucket"));
+				event.getRegistry().register(
+						new BucketItem(Fluids.EMPTY, new Properties().stacksTo(64).tab(CreativeModeTab.TAB_MISC))
+								.setRegistryName("minecraft", "bucket"));
 		}
 	}
 }
