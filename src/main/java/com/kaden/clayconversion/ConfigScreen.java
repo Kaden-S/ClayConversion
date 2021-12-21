@@ -14,7 +14,6 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fmlclient.gui.screen.ModListScreen;
 import net.minecraft.client.CycleOption;
 
 @OnlyIn(Dist.CLIENT)

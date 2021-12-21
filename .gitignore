@@ -1,10 +1,19 @@
-/*
-!src/
-!.gitignore
-!gradlew*
-!gradle/
-!LICENSE.txt
-!README.md
-!build.gradle
-!gradle.properties
-!.gitattributes
+# eclipse
+bin
+*.launch
+.settings
+.metadata
+.classpath
+.project
+
+# gradle
+build
+.gradle
+
+# other
+eclipse
+run
+logs
+
+# Files from Forge MDK
+forge*changelog.txt
