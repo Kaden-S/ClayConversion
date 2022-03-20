@@ -3,9 +3,6 @@ package com.kaden.clayconversion;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.EnderpearlItem;
@@ -25,7 +22,6 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLDedicatedServerSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 @Mod("clayconversion")
@@ -38,7 +34,6 @@ public class ClayConversion {
 		Config.loadConfig(ModConfig.Type.COMMON);
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::commonSetup);
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clientSetup);
-		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::serverSetup);
 	}
 
 	private void commonSetup(final FMLCommonSetupEvent e) {
@@ -49,24 +44,11 @@ public class ClayConversion {
 		DistExecutor.safeCallWhenOn(Dist.CLIENT, () -> ClientSide::new);
 	}
 
-	private void serverSetup(final FMLDedicatedServerSetupEvent event) {
-		DistExecutor.safeCallWhenOn(Dist.DEDICATED_SERVER, () -> ServerSide::new);
-	}
-
 	public class ClientSide {
+
 		public ClientSide() {
-//			LogManager.getLogger().debug("Client side");
-			BiFunction<Minecraft, Screen, Screen> factorySupplier = (mc,
-					screen) -> new ConfigScreen(new TextComponent("Clay Conversion Config"), screen);
-
 			ModLoadingContext.get().registerExtensionPoint(ConfigGuiFactory.class,
-					() -> new ConfigGuiFactory(factorySupplier));
-		}
-	}
-
-	public class ServerSide {
-		public ServerSide() {
-//			LogManager.getLogger().debug("Server side");
+					() -> new ConfigGuiFactory((mc, screen) -> new ConfigScreen(screen)));
 		}
 	}
 

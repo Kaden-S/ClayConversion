@@ -24,8 +24,8 @@ public class ConfigScreen extends Screen {
 
 	private static ConfigScreen instance;
 
-	protected ConfigScreen(TextComponent titleIn, Screen prevScreen) {
-		super(titleIn);
+	protected ConfigScreen(Screen prevScreen) {
+		super(new TextComponent("Clay Conversion Config"));
 		instance = this;
 		this.previousScreen = prevScreen;
 	}
