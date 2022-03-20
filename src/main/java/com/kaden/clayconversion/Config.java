@@ -2,7 +2,6 @@ package com.kaden.clayconversion;
 
 
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
-import com.electronwill.nightconfig.core.io.WritingMode;
 
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.ForgeConfigSpec.BooleanValue;
@@ -30,21 +29,23 @@ public class Config {
 
     cfgBuilder.comment("General settings").push(generalCategory);
     {
-      enderPearlFullStackEnabled = cfgBuilder.comment("\nEnable Full Stack of Ender Pearls [Default: false]")
-        .define("ender_pearl_stacks", false);
-      snowballFullStackEnabled = cfgBuilder.comment("\nEnable Full Stack of Snow Balls [Default: false]")
-        .define("snowball_stacks", false);
-      emptyBucketsFullStackEnabled = cfgBuilder.comment("\nEnable Full Stack of Empty Buckets [Default: false]")
-        .define("empty_bucket_stacks", false);
+      cfgBuilder.comment("Enable Full Stack of Ender Pearls [Default: false]");
+      enderPearlFullStackEnabled = cfgBuilder.define("ender_pearl_stacks", false);
+      cfgBuilder.comment("Enable Full Stack of Snow Balls [Default: false]");
+      snowballFullStackEnabled = cfgBuilder.define("snowball_stacks", false);
+      cfgBuilder.comment("Enable Full Stack of Empty Buckets [Default: false]");
+      emptyBucketsFullStackEnabled = cfgBuilder.define("empty_bucket_stacks", false);
 
       cfgBuilder.comment("Recipes settings").push(recipesCategory);
       {
-        clayRecipeEnabled = cfgBuilder.comment("Enable Clay Recipe [Default: true]").define("clay_recipe", true);
-        snowRecipeEnabled = cfgBuilder.comment("\nEnable Snow Recipe [Default: true]").define("snowball_recipe", true);
-        quartzRecipeEnabled = cfgBuilder.comment("\nEnable Quartz Recipe [Default: true]").define("quartz_recipe",
-          true);
-        glowstoneRecipeEnabled = cfgBuilder.comment("\nEnable Glowstone Recipe [Default: true]")
-          .define("glowstone_recipe", true);
+        cfgBuilder.comment("Enable Clay Recipe [Default: true]");
+        clayRecipeEnabled = cfgBuilder.define("clay_recipe", true);
+        cfgBuilder.comment("Enable Snow Recipe [Default: true]");
+        snowRecipeEnabled = cfgBuilder.define("snowball_recipe", true);
+        cfgBuilder.comment("Enable Quartz Recipe [Default: true]");
+        quartzRecipeEnabled = cfgBuilder.define("quartz_recipe", true);
+        cfgBuilder.comment("Enable Glowstone Recipe [Default: true]");
+        glowstoneRecipeEnabled = cfgBuilder.define("glowstone_recipe", true);
       }
       cfgBuilder.pop();
     }
@@ -54,11 +55,11 @@ public class Config {
   }
 
   static void loadConfig(ModConfig.Type type) {
-    CommentedFileConfig file = CommentedFileConfig
+    CommentedFileConfig config = CommentedFileConfig
       .builder(
         FMLPaths.CONFIGDIR.get().resolve(ClayConversion.modid + "-" + type.toString().toLowerCase() + ".toml").toFile())
-      .sync().autosave().writingMode(WritingMode.REPLACE).build();
-    file.load();
-    cfg.setConfig(file);
+      .build();
+    config.load();
+    cfg.setConfig(config);
   }
 }
