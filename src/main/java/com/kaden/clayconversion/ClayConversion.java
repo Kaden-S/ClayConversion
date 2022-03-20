@@ -1,6 +1,7 @@
 package com.kaden.clayconversion;
 
-import java.util.function.BiFunction;
+import java.util.ArrayList;
+import java.util.List;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -74,18 +75,20 @@ public class ClayConversion {
 
 		@SubscribeEvent
 		public static void onItemsRegistry(final RegistryEvent.Register<Item> event) {
+			Properties properties = new Properties().stacksTo(64).tab(CreativeModeTab.TAB_MISC);
+			List<Item> items = new ArrayList<>();
+
 			if (Config.enderPearlFullStackEnabled.get())
-				event.getRegistry()
-						.register(new EnderpearlItem(new Properties().stacksTo(64).tab(CreativeModeTab.TAB_MISC))
-								.setRegistryName("minecraft", "ender_pearl"));
+				items.add(new EnderpearlItem(properties).setRegistryName("minecraft", "ender_pearl"));
+
 			if (Config.snowballFullStackEnabled.get())
-				event.getRegistry()
-						.register(new SnowballItem(new Properties().stacksTo(64).tab(CreativeModeTab.TAB_MISC))
-								.setRegistryName("minecraft", "snowball"));
+				items.add(new SnowballItem(properties).setRegistryName("minecraft", "snowball"));
+
 			if (Config.emptyBucketsFullStackEnabled.get())
-				event.getRegistry().register(
-						new BucketItem(() -> Fluids.EMPTY, new Properties().stacksTo(64).tab(CreativeModeTab.TAB_MISC))
-								.setRegistryName("minecraft", "bucket"));
+				items.add(new BucketItem(() -> Fluids.EMPTY, properties).setRegistryName("minecraft", "bucket"));
+
+			if (items.size() > 0)
+				event.getRegistry().registerAll(items.toArray(new Item[] {}));
 		}
 	}
 }
