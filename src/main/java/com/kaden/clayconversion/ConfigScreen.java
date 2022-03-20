@@ -1,8 +1,9 @@
 package com.kaden.clayconversion;
 
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.EnumMap;
+import java.util.Map;
+import java.util.function.Function;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
@@ -14,22 +15,38 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.common.ForgeConfigSpec.BooleanValue;
 
 
 @OnlyIn(Dist.CLIENT)
 public class ConfigScreen extends Screen {
 
+  public enum ConfigType {
+    CLAY_RECIPE, GLOWSTONE_RECIPE, QUARTZ_RECIPE, SNOW_RECIPE, BUCKET_STACK, PEARL_STACK, SNOW_STACK;
+  }
+
   private OptionsList stackingList;
   private Screen previousScreen;
-  private Button doneButton = null, allOnButton, allOffButton, resetButton;
+  private Button allOnButton = null, allOffButton, resetButton;
+  private Map<ConfigType, Boolean> configValues = new EnumMap<>(ConfigType.class) {
 
-  private static ConfigScreen instance;
+    private static final long serialVersionUID = 1L;
+    {
+      put(ConfigType.CLAY_RECIPE, getBooleanValue(ConfigType.CLAY_RECIPE).get());
+      put(ConfigType.GLOWSTONE_RECIPE, getBooleanValue(ConfigType.GLOWSTONE_RECIPE).get());
+      put(ConfigType.QUARTZ_RECIPE, getBooleanValue(ConfigType.QUARTZ_RECIPE).get());
+      put(ConfigType.SNOW_RECIPE, getBooleanValue(ConfigType.SNOW_RECIPE).get());
+      put(ConfigType.BUCKET_STACK, getBooleanValue(ConfigType.BUCKET_STACK).get());
+      put(ConfigType.PEARL_STACK, getBooleanValue(ConfigType.PEARL_STACK).get());
+      put(ConfigType.SNOW_STACK, getBooleanValue(ConfigType.SNOW_STACK).get());
+    }
+  };
 
-  protected ConfigScreen(Screen prevScreen) {
+  public ConfigScreen(Screen prevScreen) {
     super(new TextComponent("Clay Conversion Config"));
-    instance = this;
+
     this.previousScreen = prevScreen;
+    configValues.putAll(configValues);
   }
 
   @Override
@@ -43,110 +60,113 @@ public class ConfigScreen extends Screen {
 
   @Override
   protected void init() {
-    doneButton = new Button(2, height - 22, 50, 20, new TextComponent("Done"), b -> {
-      Minecraft.getInstance().setScreen(this.previousScreen);
-      Config.loadConfig(ModConfig.Type.COMMON);
-    });
-    allOnButton = new Button(width - 104, height - 22, 50, 20, new TextComponent("All on"), b -> {
-      Config.emptyBucketsFullStackEnabled.set(true);
-      Config.enderPearlFullStackEnabled.set(true);
-      Config.snowballFullStackEnabled.set(true);
-      Config.clayRecipeEnabled.set(true);
-      Config.glowstoneRecipeEnabled.set(true);
-      Config.snowRecipeEnabled.set(true);
-      Config.quartzRecipeEnabled.set(true);
-      testValues();
-      init();
-    });
-    allOffButton = new Button(width - 52, height - 22, 50, 20, new TextComponent("All off"), b -> {
-      Config.emptyBucketsFullStackEnabled.set(false);
-      Config.enderPearlFullStackEnabled.set(false);
-      Config.snowballFullStackEnabled.set(false);
-      Config.clayRecipeEnabled.set(false);
-      Config.glowstoneRecipeEnabled.set(false);
-      Config.snowRecipeEnabled.set(false);
-      Config.quartzRecipeEnabled.set(false);
-      testValues();
-      init();
-    });
-    resetButton = new Button(54, height - 22, 70, 20, new TextComponent("Defaults"), b -> {
-      Config.emptyBucketsFullStackEnabled.set(false);;
-      Config.enderPearlFullStackEnabled.set(false);
-      Config.snowballFullStackEnabled.set(false);
-      Config.clayRecipeEnabled.set(true);
-      Config.glowstoneRecipeEnabled.set(true);
-      Config.snowRecipeEnabled.set(true);
-      Config.quartzRecipeEnabled.set(true);
-      testValues();
-      init();
-    });
-    if (doneButton == null) testValues();
+    if (allOnButton == null) createButtons();
+    else removeWidget(stackingList);
+
     stackingList = new OptionsList(minecraft, width, height, 24, height - 25, 25);
-    stackingList.addBig(CycleOption.createOnOff("Snowballs stack to 64", a -> {
-      return Config.snowballFullStackEnabled.get();
-    }, (a, b, c) -> {
-      Config.snowballFullStackEnabled.set(c);
-      testValues();
-    }));
-    stackingList.addBig(CycleOption.createOnOff("Ender Pearls stack to 64", a -> {
-      return Config.enderPearlFullStackEnabled.get();
-    }, (a, b, c) -> {
-      Config.enderPearlFullStackEnabled.set(c);
-      testValues();
-    }));
-    stackingList.addBig(CycleOption.createOnOff("Empty Buckets stack to 64", a -> {
-      return Config.emptyBucketsFullStackEnabled.get();
-    }, (a, b, c) -> {
-      Config.emptyBucketsFullStackEnabled.set(c);
-      testValues();
-    }));
-    stackingList.addBig(CycleOption.createOnOff("Clay block to clay ball recipe", a -> {
-      return Config.clayRecipeEnabled.get();
-    }, (a, b, c) -> {
-      Config.clayRecipeEnabled.set(c);
-      testValues();
-    }));
-    stackingList.addBig(CycleOption.createOnOff("Glowstone block to glowstone dust recipe", a -> {
-      return Config.glowstoneRecipeEnabled.get();
-    }, (a, b, c) -> {
-      Config.glowstoneRecipeEnabled.set(c);
-      testValues();
-    }));
-    stackingList.addBig(CycleOption.createOnOff("Snow block to snow ball recipe", a -> {
-      return Config.snowRecipeEnabled.get();
-    }, (a, b, c) -> {
-      Config.snowRecipeEnabled.set(c);
-      testValues();
-    }));
-    stackingList.addBig(CycleOption.createOnOff("Quartz block to quartz recipe", a -> {
-      return Config.quartzRecipeEnabled.get();
-    }, (a, b, c) -> {
-      Config.quartzRecipeEnabled.set(c);
-      testValues();
-    }));
+    addOption("Snowballs stack to 64", ConfigType.SNOW_STACK);
+    addOption("Ender Pearls stack to 64", ConfigType.PEARL_STACK);
+    addOption("Empty Buckets stack to 64", ConfigType.BUCKET_STACK);
+    addOption("Clay block to clay ball recipe", ConfigType.CLAY_RECIPE);
+    addOption("Glowstone block to glowstone dust recipe", ConfigType.GLOWSTONE_RECIPE);
+    addOption("Quartz block to quartz recipe", ConfigType.QUARTZ_RECIPE);
+    addOption("Snow block to snow ball recipe", ConfigType.SNOW_RECIPE);
+    addWidget(stackingList);
+
+    super.init();
+  }
+
+  private void createButtons() {
+    Button doneButton = new Button(2, height - 22, 50, 20, new TextComponent("Save"), b -> {
+      saveConfig();
+      Minecraft.getInstance().setScreen(this.previousScreen);
+    });
+
+    allOnButton = new Button(width - 104, height - 22, 50, 20, new TextComponent("All on"), b -> {
+      setAll(true);
+      b.active = false;
+      init();
+    });
+
+    allOffButton = new Button(width - 52, height - 22, 50, 20, new TextComponent("All off"), b -> {
+      setAll(false);
+      b.active = false;
+      init();
+    });
+
+    resetButton = new Button(54, height - 22, 70, 20, new TextComponent("Revert"), b -> {
+      // TODO: this could be better
+      setValue(ConfigType.SNOW_STACK, false);
+      setValue(ConfigType.PEARL_STACK, false);
+      setValue(ConfigType.BUCKET_STACK, false);
+      setValue(ConfigType.CLAY_RECIPE, true);
+      setValue(ConfigType.GLOWSTONE_RECIPE, true);
+      setValue(ConfigType.QUARTZ_RECIPE, true);
+      setValue(ConfigType.SNOW_RECIPE, true);
+      b.active = false;
+      init();
+    });
+
     addRenderableWidget(doneButton);
     addRenderableWidget(resetButton);
     addRenderableWidget(allOnButton);
     addRenderableWidget(allOffButton);
-    addWidget(this.stackingList);
-    super.init();
   }
 
-  private static void testValues() {
-    List<Boolean> cfgValues = Arrays.asList(new Boolean[] { Config.emptyBucketsFullStackEnabled.get(),
-      Config.enderPearlFullStackEnabled.get(), Config.snowRecipeEnabled.get(), Config.clayRecipeEnabled.get(),
-      Config.glowstoneRecipeEnabled.get(), Config.snowballFullStackEnabled.get(), Config.quartzRecipeEnabled.get() });
-    if (!cfgValues.contains(false)) {
-      instance.allOnButton.active = false;
-      instance.allOffButton.active = true;
-    } else if (!cfgValues.contains(true)) {
-      instance.allOffButton.active = false;
-      instance.allOnButton.active = true;
-    } else {
-      instance.allOnButton.active = true;
-      instance.allOffButton.active = true;
+  private void addOption(String label, ConfigType cfg) {
+    CycleOption.OptionSetter<Boolean> setter = (a, b, c) -> setValue(cfg, c);
+    Function<net.minecraft.client.Options, Boolean> getter = a -> getValue(cfg);
+    this.stackingList.addBig(CycleOption.createOnOff(label, getter, setter));
+  }
+
+  private boolean getValue(ConfigType cfg) {
+    return this.configValues.get(cfg);
+  }
+
+  private void setValue(ConfigType cfg, boolean value) {
+    this.configValues.replace(cfg, value);
+
+    if (allValuesAre(value)) (value ? allOnButton : allOffButton).active = false;
+    else(value ? allOffButton : allOnButton).active = true;
+
+    resetButton.active = true;
+  }
+
+  private void setAll(boolean value) {
+    this.configValues.replaceAll((a, b) -> value);
+
+    resetButton.active = true;
+  }
+
+  private boolean allValuesAre(boolean value) {
+    return !this.configValues.values().contains(!value);
+  }
+
+  private BooleanValue getBooleanValue(ConfigType cfg) {
+    switch (cfg) {
+    case CLAY_RECIPE:
+      return Config.clayRecipeEnabled;
+    case GLOWSTONE_RECIPE:
+      return Config.glowstoneRecipeEnabled;
+    case QUARTZ_RECIPE:
+      return Config.quartzRecipeEnabled;
+    case SNOW_RECIPE:
+      return Config.snowRecipeEnabled;
+    case BUCKET_STACK:
+      return Config.emptyBucketsFullStackEnabled;
+    case PEARL_STACK:
+      return Config.enderPearlFullStackEnabled;
+    case SNOW_STACK:
+      return Config.snowballFullStackEnabled;
+    default:
+      throw new Error("Unreachable code");
     }
-    instance.addWidget(instance.allOnButton);
-    instance.addWidget(instance.allOffButton);
+  }
+
+  private void saveConfig() {
+    this.configValues.forEach((cfg, b) -> {
+      BooleanValue value = getBooleanValue(cfg);
+      if (value.get() != b) value.set(b);
+    });
   }
 }
