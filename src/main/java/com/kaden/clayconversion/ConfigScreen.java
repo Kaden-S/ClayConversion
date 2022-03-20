@@ -5,28 +5,29 @@ import java.util.List;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
+import net.minecraft.client.CycleOption;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.OptionsList;
-import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.config.ModConfig;
-import net.minecraft.client.CycleOption;
 
 @OnlyIn(Dist.CLIENT)
 public class ConfigScreen extends Screen {
 
 	private OptionsList stackingList;
+	private Screen previousScreen;
 	private Button doneButton = null, allOnButton, allOffButton, resetButton;
 
-	private static ConfigScreen cfgScreen;
+	private static ConfigScreen instance;
 
-	protected ConfigScreen(TextComponent titleIn) {
+	protected ConfigScreen(TextComponent titleIn, Screen prevScreen) {
 		super(titleIn);
-		cfgScreen = this;
+		instance = this;
+		this.previousScreen = prevScreen;
 	}
 
 	@Override
@@ -40,48 +41,46 @@ public class ConfigScreen extends Screen {
 
 	@Override
 	protected void init() {
-		if (doneButton == null) {
-			doneButton = new Button(2, height - 22, 50, 20, new TextComponent("Done"), b -> {
-				// TODO
-//				Minecraft.getInstance().setScreen(new ModListScreen(new MainMenuScreen()));
-//				Config.loadConfig(ModConfig.Type.COMMON);
-			});
-			allOnButton = new Button(width - 104, height - 22, 50, 20, new TextComponent("All on"), b -> {
-				Config.emptyBucketsFullStackEnabled.set(true);
-				Config.enderPearlFullStackEnabled.set(true);
-				Config.snowballFullStackEnabled.set(true);
-				Config.clayRecipeEnabled.set(true);
-				Config.glowstoneRecipeEnabled.set(true);
-				Config.snowRecipeEnabled.set(true);
-				Config.quartzRecipeEnabled.set(true);
-				testValues();
-				init();
-			});
-			allOffButton = new Button(width - 52, height - 22, 50, 20, new TextComponent("All off"), b -> {
-				Config.emptyBucketsFullStackEnabled.set(false);
-				Config.enderPearlFullStackEnabled.set(false);
-				Config.snowballFullStackEnabled.set(false);
-				Config.clayRecipeEnabled.set(false);
-				Config.glowstoneRecipeEnabled.set(false);
-				Config.snowRecipeEnabled.set(false);
-				Config.quartzRecipeEnabled.set(false);
-				testValues();
-				init();
-			});
-			resetButton = new Button(54, height - 22, 70, 20, new TextComponent("Defaults"), b -> {
-				Config.emptyBucketsFullStackEnabled.set(false);
-				;
-				Config.enderPearlFullStackEnabled.set(false);
-				Config.snowballFullStackEnabled.set(false);
-				Config.clayRecipeEnabled.set(true);
-				Config.glowstoneRecipeEnabled.set(true);
-				Config.snowRecipeEnabled.set(true);
-				Config.quartzRecipeEnabled.set(true);
-				testValues();
-				init();
-			});
+		doneButton = new Button(2, height - 22, 50, 20, new TextComponent("Done"), b -> {
+			Minecraft.getInstance().setScreen(this.previousScreen);
+			Config.loadConfig(ModConfig.Type.COMMON);
+		});
+		allOnButton = new Button(width - 104, height - 22, 50, 20, new TextComponent("All on"), b -> {
+			Config.emptyBucketsFullStackEnabled.set(true);
+			Config.enderPearlFullStackEnabled.set(true);
+			Config.snowballFullStackEnabled.set(true);
+			Config.clayRecipeEnabled.set(true);
+			Config.glowstoneRecipeEnabled.set(true);
+			Config.snowRecipeEnabled.set(true);
+			Config.quartzRecipeEnabled.set(true);
 			testValues();
-		}
+			init();
+		});
+		allOffButton = new Button(width - 52, height - 22, 50, 20, new TextComponent("All off"), b -> {
+			Config.emptyBucketsFullStackEnabled.set(false);
+			Config.enderPearlFullStackEnabled.set(false);
+			Config.snowballFullStackEnabled.set(false);
+			Config.clayRecipeEnabled.set(false);
+			Config.glowstoneRecipeEnabled.set(false);
+			Config.snowRecipeEnabled.set(false);
+			Config.quartzRecipeEnabled.set(false);
+			testValues();
+			init();
+		});
+		resetButton = new Button(54, height - 22, 70, 20, new TextComponent("Defaults"), b -> {
+			Config.emptyBucketsFullStackEnabled.set(false);
+			;
+			Config.enderPearlFullStackEnabled.set(false);
+			Config.snowballFullStackEnabled.set(false);
+			Config.clayRecipeEnabled.set(true);
+			Config.glowstoneRecipeEnabled.set(true);
+			Config.snowRecipeEnabled.set(true);
+			Config.quartzRecipeEnabled.set(true);
+			testValues();
+			init();
+		});
+		if (doneButton == null)
+			testValues();
 		stackingList = new OptionsList(minecraft, width, height, 24, height - 25, 25);
 		stackingList.addBig(CycleOption.createOnOff("Snowballs stack to 64", a -> {
 			return Config.snowballFullStackEnabled.get();
@@ -125,10 +124,11 @@ public class ConfigScreen extends Screen {
 			Config.quartzRecipeEnabled.set(c);
 			testValues();
 		}));
-		addWidget(doneButton);
-		addWidget(resetButton);
-		//TODO
-//		this.children.add(this.stackingList);
+		addRenderableWidget(doneButton);
+		addRenderableWidget(resetButton);
+		addRenderableWidget(allOnButton);
+		addRenderableWidget(allOffButton);
+		addWidget(this.stackingList);
 		super.init();
 	}
 
@@ -138,19 +138,16 @@ public class ConfigScreen extends Screen {
 				Config.glowstoneRecipeEnabled.get(), Config.snowballFullStackEnabled.get(),
 				Config.quartzRecipeEnabled.get() });
 		if (!cfgValues.contains(false)) {
-			cfgScreen.allOnButton.active = false;
-			cfgScreen.allOffButton.active = true;
+			instance.allOnButton.active = false;
+			instance.allOffButton.active = true;
 		} else if (!cfgValues.contains(true)) {
-			cfgScreen.allOffButton.active = false;
-			cfgScreen.allOnButton.active = true;
+			instance.allOffButton.active = false;
+			instance.allOnButton.active = true;
 		} else {
-			cfgScreen.allOnButton.active = true;
-			cfgScreen.allOffButton.active = true;
+			instance.allOnButton.active = true;
+			instance.allOffButton.active = true;
 		}
-		cfgScreen.addWidget(cfgScreen.allOnButton);
-		cfgScreen.addWidget(cfgScreen.allOffButton);
+		instance.addWidget(instance.allOnButton);
+		instance.addWidget(instance.allOffButton);
 	}
 }
-
-
-

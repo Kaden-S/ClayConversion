@@ -1,17 +1,19 @@
 package com.kaden.clayconversion;
 
-import org.apache.logging.log4j.LogManager;
+import java.util.function.BiFunction;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.EnderpearlItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Item.Properties;
 import net.minecraft.world.item.SnowballItem;
-import net.minecraft.world.item.SolidBucketItem;
-import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.ConfigGuiHandler.ConfigGuiFactory;
 import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -53,10 +55,11 @@ public class ClayConversion {
 	public class ClientSide {
 		public ClientSide() {
 //			LogManager.getLogger().debug("Client side");
-//			TODO
-//			ModLoadingContext.get().registerExtensionPoint(GuiConfigFactory, () -> (mc, screen) -> {
-//				return new ConfigScreen(new TextComponent("Clay Conversion Config"));
-//			});
+			BiFunction<Minecraft, Screen, Screen> factorySupplier = (mc,
+					screen) -> new ConfigScreen(new TextComponent("Clay Conversion Config"), screen);
+
+			ModLoadingContext.get().registerExtensionPoint(ConfigGuiFactory.class,
+					() -> new ConfigGuiFactory(factorySupplier));
 		}
 	}
 
@@ -81,7 +84,7 @@ public class ClayConversion {
 								.setRegistryName("minecraft", "snowball"));
 			if (Config.emptyBucketsFullStackEnabled.get())
 				event.getRegistry().register(
-						new BucketItem(Fluids.EMPTY, new Properties().stacksTo(64).tab(CreativeModeTab.TAB_MISC))
+						new BucketItem(() -> Fluids.EMPTY, new Properties().stacksTo(64).tab(CreativeModeTab.TAB_MISC))
 								.setRegistryName("minecraft", "bucket"));
 		}
 	}
