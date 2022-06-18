@@ -4,7 +4,9 @@ package com.kaden.clayconversion;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
+import com.kaden.clayconversion.Config.ConfigType;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.CycleOption;
@@ -12,49 +14,44 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.OptionsList;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.ForgeConfigSpec.BooleanValue;
 
 
 @OnlyIn(Dist.CLIENT)
 public class ConfigScreen extends Screen {
 
-  public enum ConfigType {
-    CLAY_RECIPE, GLOWSTONE_RECIPE, QUARTZ_RECIPE, SNOW_RECIPE, BUCKET_STACK, PEARL_STACK, SNOW_STACK;
-  }
-
   private OptionsList stackingList;
   private Screen previousScreen;
-  private Button allOnButton = null, allOffButton, resetButton;
+  private Button allOnButton, allOffButton, resetButton;
+  private Button.OnPress allOnFn = onPress(() -> setAll(true)), allOffFn = onPress(() -> setAll(false)),
+    resetFn = onPress(() -> setAll((cfg) -> cfg.enabledByDefault)), doneFn = b -> {
+      save();
+      exit();
+    };
   private Map<ConfigType, Boolean> configValues = new EnumMap<>(ConfigType.class) {
 
     private static final long serialVersionUID = 1L;
     {
-      put(ConfigType.CLAY_RECIPE, getBooleanValue(ConfigType.CLAY_RECIPE).get());
-      put(ConfigType.GLOWSTONE_RECIPE, getBooleanValue(ConfigType.GLOWSTONE_RECIPE).get());
-      put(ConfigType.QUARTZ_RECIPE, getBooleanValue(ConfigType.QUARTZ_RECIPE).get());
-      put(ConfigType.SNOW_RECIPE, getBooleanValue(ConfigType.SNOW_RECIPE).get());
-      put(ConfigType.BUCKET_STACK, getBooleanValue(ConfigType.BUCKET_STACK).get());
-      put(ConfigType.PEARL_STACK, getBooleanValue(ConfigType.PEARL_STACK).get());
-      put(ConfigType.SNOW_STACK, getBooleanValue(ConfigType.SNOW_STACK).get());
+      for (var cfg : ConfigType.values())
+        put(cfg, cfg.enabled());
     }
   };
 
   public ConfigScreen(Screen prevScreen) {
-    super(new TextComponent("Clay Conversion Config"));
+    super(Text.configScreen);
 
     this.previousScreen = prevScreen;
-    configValues.putAll(configValues);
   }
 
   @Override
   public void render(PoseStack matrix, int mouseX, int mouseY, float partialTicks) {
+    int white = 0xFFFFFFFF;
+
     renderBackground(matrix);
     stackingList.render(matrix, mouseX, mouseY, partialTicks);
-    drawCenteredString(matrix, font, title.getString(), width / 2, 8, 0xFFFFFFFF);
-    drawCenteredString(matrix, font, "Changes apply on restart.", width / 2, height - 12, 0xFFFFFFFF);
+    drawCenteredString(matrix, font, title.getString(), width / 2, 8, white);
+    drawCenteredString(matrix, font, "Changes apply on restart.", width / 2, height - 12, white);
     super.render(matrix, mouseX, mouseY, partialTicks);
   }
 
@@ -64,48 +61,22 @@ public class ConfigScreen extends Screen {
     else removeWidget(stackingList);
 
     stackingList = new OptionsList(minecraft, width, height, 24, height - 25, 25);
-    addOption("Snowballs stack to 64", ConfigType.SNOW_STACK);
-    addOption("Ender Pearls stack to 64", ConfigType.PEARL_STACK);
-    addOption("Empty Buckets stack to 64", ConfigType.BUCKET_STACK);
-    addOption("Clay block to clay ball recipe", ConfigType.CLAY_RECIPE);
-    addOption("Glowstone block to glowstone dust recipe", ConfigType.GLOWSTONE_RECIPE);
-    addOption("Quartz block to quartz recipe", ConfigType.QUARTZ_RECIPE);
-    addOption("Snow block to snow ball recipe", ConfigType.SNOW_RECIPE);
+    for (var cfg : ConfigType.values())
+      addOption(cfg.desc, cfg);
     addWidget(stackingList);
 
     super.init();
   }
 
   private void createButtons() {
-    Button doneButton = new Button(2, height - 22, 50, 20, new TextComponent("Save"), b -> {
-      saveConfig();
-      Minecraft.getInstance().setScreen(this.previousScreen);
-    });
+    Button doneButton = new Button(2, height - 22, 50, 20, Text.saveButton, doneFn);
+    allOnButton = new Button(width - 104, height - 22, 50, 20, Text.allOnButton, allOnFn);
+    allOffButton = new Button(width - 52, height - 22, 50, 20, Text.allOffButton, allOffFn);
+    resetButton = new Button(54, height - 22, 70, 20, Text.revertButton, resetFn);
 
-    allOnButton = new Button(width - 104, height - 22, 50, 20, new TextComponent("All on"), b -> {
-      setAll(true);
-      b.active = false;
-      init();
-    });
-
-    allOffButton = new Button(width - 52, height - 22, 50, 20, new TextComponent("All off"), b -> {
-      setAll(false);
-      b.active = false;
-      init();
-    });
-
-    resetButton = new Button(54, height - 22, 70, 20, new TextComponent("Revert"), b -> {
-      // TODO: this could be better
-      setValue(ConfigType.SNOW_STACK, false);
-      setValue(ConfigType.PEARL_STACK, false);
-      setValue(ConfigType.BUCKET_STACK, false);
-      setValue(ConfigType.CLAY_RECIPE, true);
-      setValue(ConfigType.GLOWSTONE_RECIPE, true);
-      setValue(ConfigType.QUARTZ_RECIPE, true);
-      setValue(ConfigType.SNOW_RECIPE, true);
-      b.active = false;
-      init();
-    });
+    if (matchAll(true)) allOnButton.active = false;
+    if (matchAll(false)) allOffButton.active = false;
+    if (matchAll(cfg -> cfg.enabledByDefault)) resetButton.active = false;
 
     addRenderableWidget(doneButton);
     addRenderableWidget(resetButton);
@@ -126,47 +97,55 @@ public class ConfigScreen extends Screen {
   private void setValue(ConfigType cfg, boolean value) {
     this.configValues.replace(cfg, value);
 
-    if (allValuesAre(value)) (value ? allOnButton : allOffButton).active = false;
-    else(value ? allOffButton : allOnButton).active = true;
+    boolean resetButtonActive = true;
 
-    resetButton.active = true;
+    if (matchAll(value)) {
+      (value ? allOnButton : allOffButton).active = false;
+    } else {
+      (value ? allOffButton : allOnButton).active = true;
+
+      if (matchAll(c -> c.enabledByDefault)) resetButtonActive = false;
+    }
+
+    resetButton.active = resetButtonActive;
   }
 
-  private void setAll(boolean value) {
-    this.configValues.replaceAll((a, b) -> value);
-
-    resetButton.active = true;
+  private void setAll(Predicate<ConfigType> val) {
+    for (var cfg : ConfigType.values())
+      setValue(cfg, val.test(cfg));
   }
 
-  private boolean allValuesAre(boolean value) {
+  private void setAll(boolean val) {
+    for (var cfg : ConfigType.values())
+      setValue(cfg, val);
+  }
+
+  private boolean matchAll(Predicate<ConfigType> val) {
+    for (var cfg : ConfigType.values()) {
+      if (getValue(cfg) != val.test(cfg)) return false;
+    }
+    return true;
+  }
+
+  private boolean matchAll(boolean value) {
     return !this.configValues.values().contains(!value);
   }
 
-  private BooleanValue getBooleanValue(ConfigType cfg) {
-    switch (cfg) {
-    case CLAY_RECIPE:
-      return Config.clayRecipeEnabled;
-    case GLOWSTONE_RECIPE:
-      return Config.glowstoneRecipeEnabled;
-    case QUARTZ_RECIPE:
-      return Config.quartzRecipeEnabled;
-    case SNOW_RECIPE:
-      return Config.snowRecipeEnabled;
-    case BUCKET_STACK:
-      return Config.emptyBucketsFullStackEnabled;
-    case PEARL_STACK:
-      return Config.enderPearlFullStackEnabled;
-    case SNOW_STACK:
-      return Config.snowballFullStackEnabled;
-    default:
-      throw new Error("Unreachable code");
-    }
+  private Button.OnPress onPress(Runnable fn) {
+    return b -> {
+      fn.run();
+      b.active = false;
+      init();
+    };
   }
 
-  private void saveConfig() {
-    this.configValues.forEach((cfg, b) -> {
-      BooleanValue value = getBooleanValue(cfg);
-      if (value.get() != b) value.set(b);
+  private void exit() {
+    Minecraft.getInstance().setScreen(this.previousScreen);
+  }
+
+  private void save() {
+    this.configValues.forEach((cfg, enabled) -> {
+      if (cfg.enabled() != enabled) cfg.booleanValue().set(enabled);
     });
   }
 }
