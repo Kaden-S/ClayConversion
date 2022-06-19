@@ -1,19 +1,22 @@
 package com.kaden.clayconversion;
 
 
+import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 import com.kaden.clayconversion.Config.ConfigType;
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import net.minecraft.client.CycleOption;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.OptionInstance;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.OptionsList;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Style;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -31,7 +34,8 @@ public class ConfigScreen extends Screen {
     };
   private Map<ConfigType, Boolean> configValues = new EnumMap<>(ConfigType.class) {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -5424722059196525613L;
+
     {
       for (var cfg : ConfigType.values())
         put(cfg, cfg.enabled());
@@ -42,6 +46,13 @@ public class ConfigScreen extends Screen {
     super(Text.configScreen);
 
     this.previousScreen = prevScreen;
+  }
+
+  @Override
+  public void resize(Minecraft mc, int width, int height) {
+    super.resize(mc, width, height);
+    System.out.println(width + " x " + height);
+    init();
   }
 
   @Override
@@ -62,7 +73,7 @@ public class ConfigScreen extends Screen {
 
     stackingList = new OptionsList(minecraft, width, height, 24, height - 25, 25);
     for (var cfg : ConfigType.values())
-      addOption(cfg.desc, cfg);
+      addOption(cfg.name, cfg.desc, cfg);
     addWidget(stackingList);
 
     super.init();
@@ -84,10 +95,17 @@ public class ConfigScreen extends Screen {
     addRenderableWidget(allOffButton);
   }
 
-  private void addOption(String label, ConfigType cfg) {
-    CycleOption.OptionSetter<Boolean> setter = (a, b, c) -> setValue(cfg, c);
-    Function<net.minecraft.client.Options, Boolean> getter = a -> getValue(cfg);
-    this.stackingList.addBig(CycleOption.createOnOff(label, getter, setter));
+  private void addOption(String label, String tooltip, ConfigType cfg) {
+    List<FormattedCharSequence> list = new ArrayList<FormattedCharSequence>() {
+
+      private static final long serialVersionUID = 3852504791904291863L;
+      {
+        add(FormattedCharSequence.forward(tooltip, Style.EMPTY));
+      }
+    };
+    OptionInstance.TooltipSupplierFactory<Boolean> factory = (a) -> (b) -> list;
+    var btn = OptionInstance.createBoolean(label, factory, cfg.enabled(), b -> setValue(cfg, b));
+    this.stackingList.addBig(btn);
   }
 
   private boolean getValue(ConfigType cfg) {
@@ -145,7 +163,7 @@ public class ConfigScreen extends Screen {
 
   private void save() {
     this.configValues.forEach((cfg, enabled) -> {
-      if (cfg.enabled() != enabled) cfg.booleanValue().set(enabled);
+      if (cfg.enabled() != enabled) cfg.set(enabled);
     });
   }
 }

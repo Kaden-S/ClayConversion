@@ -13,31 +13,44 @@ public class Config {
 
   public static enum ConfigType {
 
-    CLAY_RECIPE("Clay Recipe", "Clay block to clay ball recipe", true),
-    GLOWSTONE_RECIPE("Glowstone Recipe", "Glowstone block to glowstone dust recipe", true),
-    QUARTZ_RECIPE("Quartz Recipe", "Quartz block to quartz recipe", true),
-    SNOW_RECIPE("Snow Recipe", "Snow block to snow ball recipe", true),
-    BUCKET_STACK("Fullstack Buckets", "Empty Buckets stack to 64", false),
-    PEARL_STACK("Fullstack Ender Pearls", "Ender Pearls stack to 64", false),
-    SNOW_STACK("Fullstack Snowball", "Snowballs stack to 64", false);
+    CLAY_RECIPE("clay", "Clay Recipe", "Clay block to clay ball recipe", true),
+    GLOWSTONE_RECIPE("glowstone", "Glowstone Recipe", "Glowstone block to glowstone dust recipe", true),
+    QUARTZ_RECIPE("quartz", "Quartz Recipe", "Quartz block to quartz recipe", true),
+    SNOW_RECIPE("snow", "Snow Recipe", "Snow block to snow ball recipe", true),
+    BUCKET_STACK("bucket_stack", "Fullstack Buckets", "Empty Buckets stack to 64", false),
+    PEARL_STACK("pearl_stack", "Fullstack Ender Pearls", "Ender Pearls stack to 64", false),
+    SNOW_STACK("snow_stack", "Fullstack Snowball", "Snowballs stack to 64", false);
 
+    public final String id;
     public final String name;
     public final String desc;
     public final boolean enabledByDefault;
+    private final BooleanValue value;
 
-    private ConfigType(String name, String desc, boolean defaultEnabled) {
+    private ConfigType(String id, String name, String desc, boolean defaultEnabled) {
+      this.id = id;
       this.name = name;
       this.desc = desc;
       this.enabledByDefault = defaultEnabled;
+
+      this.value = getBooleanValue(this);
     }
 
     public boolean enabled() {
-      return this.booleanValue().get();
+      return value.get();
     }
 
-    public BooleanValue booleanValue() {
-      return getBooleanValue(this);
+    public void set(boolean enabled) {
+      value.set(enabled);
     }
+
+    public static ConfigType getById(String id) {
+      for (var cfg : ConfigType.values())
+        if (cfg.id == id) return cfg;
+
+      return null;
+    }
+
   }
 
   private static BooleanValue getBooleanValue(ConfigType cfg) {
@@ -66,13 +79,13 @@ public class Config {
 
   static ForgeConfigSpec cfg;
 
-  static final BooleanValue clayRecipeEnabled;
-  static final BooleanValue snowRecipeEnabled;
-  static final BooleanValue quartzRecipeEnabled;
-  static final BooleanValue glowstoneRecipeEnabled;
-  static final BooleanValue enderPearlFullStackEnabled;
-  static final BooleanValue snowballFullStackEnabled;
-  static final BooleanValue emptyBucketsFullStackEnabled;
+  private static final BooleanValue clayRecipeEnabled;
+  private static final BooleanValue snowRecipeEnabled;
+  private static final BooleanValue quartzRecipeEnabled;
+  private static final BooleanValue glowstoneRecipeEnabled;
+  private static final BooleanValue enderPearlFullStackEnabled;
+  private static final BooleanValue snowballFullStackEnabled;
+  private static final BooleanValue emptyBucketsFullStackEnabled;
 
   static {
     ForgeConfigSpec.Builder cfgBuilder = new ForgeConfigSpec.Builder();
@@ -107,7 +120,7 @@ public class Config {
   static void loadConfig(ModConfig.Type type) {
     CommentedFileConfig config = CommentedFileConfig
       .builder(
-        FMLPaths.CONFIGDIR.get().resolve(ClayConversion.modid + "-" + type.toString().toLowerCase() + ".toml").toFile())
+        FMLPaths.CONFIGDIR.get().resolve(ClayConversion.MODID + "-" + type.toString().toLowerCase() + ".toml").toFile())
       .build();
     config.load();
     cfg.setConfig(config);

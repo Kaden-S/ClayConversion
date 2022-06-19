@@ -4,6 +4,7 @@ package com.kaden.clayconversion;
 import javax.annotation.Nullable;
 
 import com.google.gson.JsonObject;
+import com.kaden.clayconversion.Config.ConfigType;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.crafting.conditions.ICondition;
@@ -12,12 +13,12 @@ import net.minecraftforge.common.crafting.conditions.IConditionSerializer;
 
 public class EnabledCondition implements ICondition {
 
-  private static final ResourceLocation name = new ResourceLocation(ClayConversion.modid, "enabled");
+  private static final ResourceLocation name = new ResourceLocation(ClayConversion.MODID, "enabled");
   private boolean enabled;
   @Nullable
-  private String recipe;
+  private ConfigType recipe;
 
-  public EnabledCondition(@Nullable String recipe) {
+  public EnabledCondition(@Nullable ConfigType recipe) {
     this.recipe = recipe;
   }
 
@@ -27,32 +28,24 @@ public class EnabledCondition implements ICondition {
   }
 
   @Override
-  public boolean test() {
-    switch (recipe) {
-    case ("clay"):
-      return (enabled = Config.clayRecipeEnabled.get());
-    case ("snow"):
-      return (enabled = Config.snowRecipeEnabled.get());
-    case ("quartz"):
-      return (enabled = Config.quartzRecipeEnabled.get());
-    case ("glowstone"):
-      return (enabled = Config.glowstoneRecipeEnabled.get());
-    default:
-      return false;
-    }
+  public boolean test(IContext context) {
+    if (recipe == null) return false;
+
+    return recipe.enabled();
   }
 
   public class Serializer implements IConditionSerializer<EnabledCondition> {
 
     @Override
     public void write(JsonObject json, EnabledCondition value) {
-      json.addProperty("recipe", value.recipe);
+      json.addProperty("recipe", value.recipe.id);
       json.addProperty("enabled", value.enabled);
     }
 
     @Override
     public EnabledCondition read(JsonObject json) {
-      return new EnabledCondition(json.get("recipe").getAsString());
+      String id = json.get("recipe").getAsString();
+      return new EnabledCondition(ConfigType.getById(id));
     }
 
     @Override

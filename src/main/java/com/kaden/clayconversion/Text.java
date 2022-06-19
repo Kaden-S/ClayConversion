@@ -1,14 +1,15 @@
 package com.kaden.clayconversion;
 
 
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 
 
 public class Text {
 
-  public static final TextComponent configScreen = new TextComponent("Clay Conversion Config");
-  public static final TextComponent saveButton = new TextComponent("Save");
-  public static final TextComponent allOnButton = new TextComponent("All on");
-  public static final TextComponent allOffButton = new TextComponent("All off");
-  public static final TextComponent revertButton = new TextComponent("Revert");
+  public static final Component configScreen = Component.translatable("Clay Conversion Config");
+  public static final Component saveButton = Component.translatable("Save");
+  public static final Component allOnButton = Component.translatable("All on");
+  public static final Component allOffButton = Component.translatable("All off");
+  public static final Component revertButton = Component.translatable("Revert");
+
 }

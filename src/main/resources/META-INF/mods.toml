@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="[40,)"
+loaderVersion="[41,)"
 license="All rights reserved"
 issueTrackerURL="https://github.com/Kaden-S/ClayConversion/issues" 
 [[mods]] 
@@ -10,12 +10,13 @@ issueTrackerURL="https://github.com/Kaden-S/ClayConversion/issues"
   displayURL="https://minecraft.curseforge.com/projects/clay-conversion"
   logoFile="clayball.png"
   authors="Kaden Sharpin"
+  displayTest="MATCH_VERSION"
   description='Convert your clay blocks into clay balls easily with this mod!'
 
 [[dependencies.clayconversion]] 
     modId="forge"
     mandatory=true
-    versionRange="[40,)" 
+    versionRange="[41,)"
     ordering="NONE"
     side="BOTH"
 
